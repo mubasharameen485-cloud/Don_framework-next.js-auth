@@ -4,12 +4,10 @@ use validator::Validate;
 use don_macros::DonAuth;
 use serde::{Deserialize, Serialize};
 
-// ==========================================
-// 1. STRICT AUTH MODEL WITH VALIDATION
-// ==========================================
+
 #[derive(Debug, Clone, Serialize, Deserialize, don_core::sqlx::FromRow, DonAuth, Validate)]
 #[don_auth_key = "username"] 
-#[don_validate] // Tells the framework to run validation before signup
+#[don_validate] 
 pub struct User {
     pub id: i32,
     
@@ -26,21 +24,19 @@ pub struct User {
     pub role: String,
 }
 
-// ==========================================
-// 2. AUTH LIFECYCLE HOOKS
-// ==========================================
+
 impl DonAuthHooks for User {
     
-    // Runs BEFORE the user is saved to the database
+   
     async fn before_signup(&mut self) -> Result<(), String> {
-        // Data Modification: Auto-format the city name to uppercase
+        
         self.city = self.city.trim().to_uppercase();
         Ok(())
     }
 
-    // Runs BEFORE the login query is executed
+    
     async fn before_login(primary_key: &str) -> Result<(), String> {
-        // Security Check: Block a specific username (e.g., a known hacker or banned user)
+        
         if primary_key == "banned_hacker" {
             return Err("Security Alert: Your account has been suspended!".to_string());
         }
@@ -48,9 +44,7 @@ impl DonAuthHooks for User {
     }
 }
 
-// ==========================================
-// 3. START THE SERVER
-// ==========================================
+
 #[tokio::main]
 async fn main() {
     dotenvy::dotenv().ok();
@@ -58,7 +52,7 @@ async fn main() {
 
     DonServer::new()
         .port(8080)
-        .auth_key("username") // Set primary login key to 'username'
+        .auth_key("username") 
         .with_routes(User::get_auth_routes())
         .start()
         .await

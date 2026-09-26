@@ -62,6 +62,7 @@ export default function LoginPage() {
               className="w-full p-2 border rounded mt-1 outline-none focus:ring-2 focus:ring-indigo-500"
             />
           </div>
+          
 
           <button
             type="submit"
